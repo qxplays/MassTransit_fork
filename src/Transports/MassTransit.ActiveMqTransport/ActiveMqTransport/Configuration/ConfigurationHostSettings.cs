@@ -4,6 +4,7 @@ namespace MassTransit.ActiveMqTransport.Configuration
     using System.Collections.Generic;
     using System.Linq;
     using Apache.NMS;
+    using Scheduling;
 
 
     public class ConfigurationHostSettings :
@@ -49,11 +50,11 @@ namespace MassTransit.ActiveMqTransport.Configuration
         public Uri HostAddress => _hostAddress.Value;
         public Uri BrokerAddress => _brokerAddress.Value;
 
-        public IConnection CreateConnection()
+        public INMSContext CreateContext()
         {
             var factory = new NMSConnectionFactory(BrokerAddress);
 
-            return factory.ConnectionFactory.CreateConnection(Username, Password);
+            return factory.CreateContext(Username, Password, AcknowledgementMode.IndividualAcknowledge);
         }
 
         Uri FormatHostAddress()

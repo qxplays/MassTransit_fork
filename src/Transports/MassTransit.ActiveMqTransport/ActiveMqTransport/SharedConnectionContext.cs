@@ -22,29 +22,25 @@
 
         public override CancellationToken CancellationToken { get; }
 
-        IConnection ConnectionContext.Connection => _context.Connection;
+        INMSContext ConnectionContext.Context => _context.Context;
         public string Description => _context.Description;
         public Uri HostAddress => _context.HostAddress;
         public IActiveMqBusTopology Topology => _context.Topology;
 
-        Task<ISession> ConnectionContext.CreateSession(CancellationToken cancellationToken)
-        {
-            return _context.CreateSession(cancellationToken);
-        }
 
         public bool IsVirtualTopicConsumer(string name)
         {
             return _context.IsVirtualTopicConsumer(name);
         }
 
-        public IQueue GetTemporaryQueue(ISession session, string topicName)
+        public IQueue GetTemporaryQueue(string topicName)
         {
-            return _context.GetTemporaryQueue(session, topicName);
+            return _context.GetTemporaryQueue(topicName);
         }
 
-        public ITopic GetTemporaryTopic(ISession session, string topicName)
+        public ITopic GetTemporaryTopic(string topicName)
         {
-            return _context.GetTemporaryTopic(session, topicName);
+            return _context.GetTemporaryTopic( topicName);
         }
 
         public bool TryGetTemporaryEntity(string name, out IDestination destination)
@@ -52,9 +48,19 @@
             return _context.TryGetTemporaryEntity(name, out destination);
         }
 
-        public bool TryRemoveTemporaryEntity(ISession session, string name)
+        public bool TryRemoveTemporaryEntity(string name)
         {
-            return _context.TryRemoveTemporaryEntity(session, name);
+            return _context.TryRemoveTemporaryEntity(name);
+        }
+
+        public Task<IDestination> GetDestinationAsync(string destinationName, DestinationType destinationType)
+        {
+            return _context.GetDestinationAsync(destinationName, destinationType);
+        }
+
+        public IDestination GetDestination(string destinationName, DestinationType destinationType)
+        {
+            return _context.GetDestination(destinationName, destinationType);
         }
     }
 }

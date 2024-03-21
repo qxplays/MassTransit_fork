@@ -45,9 +45,9 @@ namespace MassTransitBenchmark
 
         public Uri BrokerAddress => _hostSettings.BrokerAddress;
 
-        public IConnection CreateConnection()
+        public INMSContext CreateContext()
         {
-            return _hostSettings.CreateConnection();
+            return _hostSettings.CreateContext();
         }
 
         public override string ToString()

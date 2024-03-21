@@ -22,7 +22,6 @@ namespace MassTransit.ActiveMqTransport
 
         public override CancellationToken CancellationToken { get; }
 
-        public ISession Session => _context.Session;
         public ConnectionContext ConnectionContext => _context.ConnectionContext;
 
         public Task<ITopic> GetTopic(Topic topic)
@@ -40,7 +39,7 @@ namespace MassTransit.ActiveMqTransport
             return _context.GetDestination(destinationName, destinationType);
         }
 
-        public Task<IMessageConsumer> CreateMessageConsumer(IDestination destination, string selector, bool noLocal)
+        public Task<INMSConsumer> CreateMessageConsumer(IDestination destination, string selector, bool noLocal)
         {
             return _context.CreateMessageConsumer(destination, selector, noLocal);
         }

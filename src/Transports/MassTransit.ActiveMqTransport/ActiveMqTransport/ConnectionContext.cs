@@ -12,7 +12,7 @@
         /// <summary>
         /// The ActiveMQ Connection
         /// </summary>
-        IConnection Connection { get; }
+        INMSContext Context { get; }
 
         /// <summary>
         /// The connection description, useful to debug output
@@ -26,21 +26,17 @@
 
         IActiveMqBusTopology Topology { get; }
 
-        /// <summary>
-        /// Create a model on the connection
-        /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        Task<ISession> CreateSession(CancellationToken cancellationToken);
 
         bool IsVirtualTopicConsumer(string name);
 
-        IQueue GetTemporaryQueue(ISession session, string topicName);
+        IQueue GetTemporaryQueue(string topicName);
 
-        ITopic GetTemporaryTopic(ISession session, string topicName);
+        ITopic GetTemporaryTopic(string topicName);
 
         bool TryGetTemporaryEntity(string name, out IDestination destination);
 
-        bool TryRemoveTemporaryEntity(ISession session, string name);
+        bool TryRemoveTemporaryEntity(string name);
+        Task<IDestination> GetDestinationAsync(string destinationName, DestinationType destinationType);
+        IDestination GetDestination(string destinationName, DestinationType destinationType);
     }
 }

@@ -19,13 +19,11 @@
     {
         readonly ChannelExecutor _executor;
         readonly MessageProducerCache _messageProducerCache;
-        readonly ISession _session;
 
-        public ActiveMqSessionContext(ConnectionContext connectionContext, ISession session, CancellationToken cancellationToken)
+        public ActiveMqSessionContext(ConnectionContext connectionContext, CancellationToken cancellationToken)
             : base(connectionContext)
         {
             ConnectionContext = connectionContext;
-            _session = session;
             CancellationToken = cancellationToken;
 
             _executor = new ChannelExecutor(1);
@@ -35,40 +33,35 @@
 
         public async ValueTask DisposeAsync()
         {
-            if (_session != null)
+
+            try
             {
-                try
-                {
-                    await _messageProducerCache.Stop(CancellationToken.None).ConfigureAwait(false);
-
-                    await _session.CloseAsync().ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    LogContext.Warning?.Log(ex, "Close session faulted: {Host}", ConnectionContext.Description);
-                }
-
-                _session.Dispose();
+                await _messageProducerCache.Stop(CancellationToken.None).ConfigureAwait(false);
             }
+            catch (Exception ex)
+            {
+                LogContext.Warning?.Log(ex, "Close session faulted: {Host}", ConnectionContext.Description);
+            }
+
+
 
             await _executor.DisposeAsync().ConfigureAwait(false);
         }
 
         public override CancellationToken CancellationToken { get; }
 
-        public ISession Session => _session;
 
         public ConnectionContext ConnectionContext { get; }
 
         public Task<ITopic> GetTopic(Topic topic)
         {
-            return _executor.Run(() =>
+            return _executor.Run(async () =>
             {
                 if (!topic.Durable && topic.AutoDelete
                     && topic.EntityName.StartsWith(ConnectionContext.Topology.PublishTopology.VirtualTopicPrefix, StringComparison.InvariantCulture))
-                    return ConnectionContext.GetTemporaryTopic(_session, topic.EntityName);
+                    return ConnectionContext.GetTemporaryTopic(topic.EntityName);
 
-                return SessionUtil.GetTopic(_session, topic.EntityName);
+                return await ConnectionContext.Context.GetTopicAsync(topic.EntityName);
             }, CancellationToken);
         }
 
@@ -77,9 +70,9 @@
             return _executor.Run(() =>
             {
                 if (!queue.Durable && queue.AutoDelete && !ConnectionContext.IsVirtualTopicConsumer(queue.EntityName))
-                    return ConnectionContext.GetTemporaryQueue(_session, queue.EntityName);
+                    return ConnectionContext.GetTemporaryQueue(queue.EntityName);
 
-                return SessionUtil.GetQueue(_session, queue.EntityName);
+                return ConnectionContext.Context.GetQueue(queue.EntityName);
             }, CancellationToken);
         }
 
@@ -89,36 +82,35 @@
                 && ConnectionContext.TryGetTemporaryEntity(destinationName, out var destination))
                 return Task.FromResult(destination);
 
-            return _executor.Run(() => SessionUtil.GetDestination(_session, destinationName, destinationType), CancellationToken);
+            return _executor.Run(() => ConnectionContext.GetDestination(destinationName, destinationType), CancellationToken);
         }
 
-        public Task<IMessageConsumer> CreateMessageConsumer(IDestination destination, string selector, bool noLocal)
+        public Task<INMSConsumer> CreateMessageConsumer(IDestination destination, string selector, bool noLocal)
         {
-            return _executor.Run(() => _session.CreateConsumerAsync(destination, selector, noLocal), CancellationToken);
+            return _executor.Run(() => ConnectionContext.Context.CreateConsumerAsync(destination, selector, noLocal), CancellationToken);
         }
 
         public async Task SendAsync(IDestination destination, IMessage message, CancellationToken cancellationToken)
         {
             var producer = await _messageProducerCache.GetMessageProducer(destination,
-                x => _executor.Run(() => _session.CreateProducerAsync(x), cancellationToken)).ConfigureAwait(false);
-
-            await _executor.Run(() => producer.SendAsync(message, message.NMSDeliveryMode, message.NMSPriority, message.NMSTimeToLive)
+                x => _executor.Run(() => ConnectionContext.Context.CreateProducerAsync(), cancellationToken)).ConfigureAwait(false);
+            await _executor.Run(() => producer.SendAsync(destination, message)
                 .OrCanceled(cancellationToken), cancellationToken).ConfigureAwait(false);
         }
 
         public IBytesMessage CreateBytesMessage(byte[] content)
         {
-            return _session.CreateBytesMessage(content);
+            return ConnectionContext.Context.CreateBytesMessage(content);
         }
 
         public ITextMessage CreateTextMessage(string content)
         {
-            return _session.CreateTextMessage(content);
+            return ConnectionContext.Context.CreateTextMessage(content);
         }
 
         public IMessage CreateMessage()
         {
-            return _session.CreateMessage();
+            return ConnectionContext.Context.CreateMessage();
         }
 
         public Task DeleteTopic(string topicName)
@@ -127,8 +119,9 @@
 
             return _executor.Run(() =>
             {
-                if (!ConnectionContext.TryRemoveTemporaryEntity(_session, topicName))
-                    SessionUtil.DeleteTopic(_session, topicName);
+                //TODO: Fix this somehow...
+                //if (!ConnectionContext.TryRemoveTemporaryEntity(topicName))
+                //    SessionUtil.DeleteTopic(topicName);
             }, CancellationToken.None);
         }
 
@@ -138,8 +131,9 @@
 
             return _executor.Run(() =>
                 {
-                    if (!ConnectionContext.TryRemoveTemporaryEntity(_session, queueName))
-                        SessionUtil.DeleteQueue(_session, queueName);
+                    //TODO: Fix this somehow...
+                    //if (!ConnectionContext.TryRemoveTemporaryEntity(queueName))
+                    //    SessionUtil.DeleteQueue(queueName);
                 }
                 , CancellationToken.None);
         }

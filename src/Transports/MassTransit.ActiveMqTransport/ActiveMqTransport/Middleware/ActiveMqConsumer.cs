@@ -16,7 +16,7 @@ namespace MassTransit.ActiveMqTransport.Middleware
     {
         readonly ActiveMqReceiveEndpointContext _context;
         readonly ChannelExecutor _executor;
-        readonly MessageConsumer _messageConsumer;
+        readonly INMSConsumer _messageConsumer;
         readonly ReceiveSettings _receiveSettings;
         readonly SessionContext _session;
 
@@ -27,7 +27,7 @@ namespace MassTransit.ActiveMqTransport.Middleware
         /// <param name="messageConsumer"></param>
         /// <param name="context">The topology</param>
         /// <param name="executor"></param>
-        public ActiveMqConsumer(SessionContext session, MessageConsumer messageConsumer, ActiveMqReceiveEndpointContext context, ChannelExecutor executor)
+        public ActiveMqConsumer(SessionContext session, INMSConsumer messageConsumer, ActiveMqReceiveEndpointContext context, ChannelExecutor executor)
             : base(context, StringComparer.Ordinal)
         {
             _session = session;
@@ -69,9 +69,7 @@ namespace MassTransit.ActiveMqTransport.Middleware
 
         protected override async Task ActiveAndActualAgentsCompleted(StopContext context)
         {
-            _messageConsumer.Stop();
             _messageConsumer.Listener -= HandleMessage;
-            _messageConsumer.Start();
 
             await base.ActiveAndActualAgentsCompleted(context).ConfigureAwait(false);
 

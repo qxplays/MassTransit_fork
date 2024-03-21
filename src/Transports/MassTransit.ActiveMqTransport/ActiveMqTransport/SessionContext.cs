@@ -9,7 +9,6 @@
     public interface SessionContext :
         PipeContext
     {
-        ISession Session { get; }
 
         ConnectionContext ConnectionContext { get; }
 
@@ -19,7 +18,7 @@
 
         Task<IDestination> GetDestination(string destinationName, DestinationType destinationType);
 
-        Task<IMessageConsumer> CreateMessageConsumer(IDestination destination, string selector, bool noLocal);
+        Task<INMSConsumer> CreateMessageConsumer(IDestination destination, string selector, bool noLocal);
 
         Task SendAsync(IDestination destination, IMessage message, CancellationToken cancellationToken);
 

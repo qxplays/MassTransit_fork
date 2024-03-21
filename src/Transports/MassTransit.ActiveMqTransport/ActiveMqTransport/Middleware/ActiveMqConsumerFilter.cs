@@ -4,6 +4,7 @@ namespace MassTransit.ActiveMqTransport.Middleware
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using Apache.NMS;
     using Apache.NMS.ActiveMQ;
     using MassTransit.Middleware;
     using Topology;
@@ -91,11 +92,11 @@ namespace MassTransit.ActiveMqTransport.Middleware
                 supervisor.Stop(exception.Message);
             }
 
-            context.ConnectionContext.Connection.ExceptionListener += HandleException;
+            context.ConnectionContext.Context.ExceptionListener += HandleException;
 
             supervisor.SetReady();
 
-            supervisor.Completed.ContinueWith(task => context.ConnectionContext.Connection.ExceptionListener -= HandleException,
+            supervisor.Completed.ContinueWith(task => context.ConnectionContext.Context.ExceptionListener -= HandleException,
                 TaskContinuationOptions.ExecuteSynchronously);
 
             return supervisor;
@@ -110,7 +111,7 @@ namespace MassTransit.ActiveMqTransport.Middleware
 
             LogContext.Debug?.Log("Created consumer for {InputAddress}: {Queue}", _context.InputAddress, entity.EntityName);
 
-            var consumer = new ActiveMqConsumer(context, (MessageConsumer)messageConsumer, _context, executor);
+            var consumer = new ActiveMqConsumer(context, messageConsumer, _context, executor);
 
             return consumer;
         }

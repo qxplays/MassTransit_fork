@@ -39,6 +39,6 @@ namespace MassTransit
 
         Uri BrokerAddress { get; }
 
-        IConnection CreateConnection();
+        INMSContext CreateContext();
     }
 }

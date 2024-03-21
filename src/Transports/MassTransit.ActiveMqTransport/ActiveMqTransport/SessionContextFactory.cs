@@ -43,23 +43,21 @@
         {
             async Task<SessionContext> CreateSessionContext(ConnectionContext connectionContext, CancellationToken createCancellationToken)
             {
-                var session = await connectionContext.CreateSession(createCancellationToken).ConfigureAwait(false);
-
                 void HandleConnectionException(Exception exception)
                 {
                     // ReSharper disable once MethodSupportsCancellation
                     asyncContext.Stop($"Connection Exception: {exception}");
                 }
 
-                connectionContext.Connection.ExceptionListener += HandleConnectionException;
+                connectionContext.Context.ExceptionListener += HandleConnectionException;
 
                 #pragma warning disable 4014
                 // ReSharper disable once MethodSupportsCancellation
-                asyncContext.Completed.ContinueWith(_ => connectionContext.Connection.ExceptionListener -= HandleConnectionException,
+                asyncContext.Completed.ContinueWith(_ => connectionContext.Context.ExceptionListener -= HandleConnectionException,
                     TaskContinuationOptions.ExecuteSynchronously);
                 #pragma warning restore 4014
 
-                return new ActiveMqSessionContext(connectionContext, session, createCancellationToken);
+                return new ActiveMqSessionContext(connectionContext, createCancellationToken);
             }
 
             #pragma warning disable CS4014

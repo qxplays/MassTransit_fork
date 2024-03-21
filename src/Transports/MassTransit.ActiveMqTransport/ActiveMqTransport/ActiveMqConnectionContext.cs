@@ -18,7 +18,7 @@ namespace MassTransit.ActiveMqTransport
         ConnectionContext,
         IAsyncDisposable
     {
-        readonly IConnection _connection;
+        readonly INMSContext _context;
         readonly ChannelExecutor _executor;
         readonly ConcurrentDictionary<string, IDestination> _temporaryEntities;
 
@@ -30,10 +30,10 @@ namespace MassTransit.ActiveMqTransport
         /// <seealso href="https://activemq.apache.org/virtual-destinations">Virtual Destinations</seealso>
         readonly Regex _virtualTopicConsumerPattern;
 
-        public ActiveMqConnectionContext(IConnection connection, IActiveMqHostConfiguration hostConfiguration, CancellationToken cancellationToken)
+        public ActiveMqConnectionContext(INMSContext context, IActiveMqHostConfiguration hostConfiguration, CancellationToken cancellationToken)
             : base(cancellationToken)
         {
-            _connection = connection;
+            _context = context;
 
             Description = hostConfiguration.Settings.ToDescription();
             HostAddress = hostConfiguration.HostAddress;
@@ -46,31 +46,25 @@ namespace MassTransit.ActiveMqTransport
             _virtualTopicConsumerPattern = new Regex(hostConfiguration.Topology.PublishTopology.VirtualTopicConsumerPattern, RegexOptions.Compiled);
         }
 
-        public IConnection Connection => _connection;
+        public INMSContext Context => _context;
         public string Description { get; }
         public Uri HostAddress { get; }
         public IActiveMqBusTopology Topology { get; }
 
-        public async Task<ISession> CreateSession(CancellationToken cancellationToken)
-        {
-            using var tokenSource = CancellationTokenSource.CreateLinkedTokenSource(CancellationToken, cancellationToken);
-
-            return await _executor.Run(() => _connection.CreateSessionAsync(AcknowledgementMode.IndividualAcknowledge), tokenSource.Token).ConfigureAwait(false);
-        }
 
         public bool IsVirtualTopicConsumer(string name)
         {
             return _virtualTopicConsumerPattern.IsMatch(name);
         }
 
-        public IQueue GetTemporaryQueue(ISession session, string topicName)
+        public IQueue GetTemporaryQueue(string topicName)
         {
-            return (IQueue)_temporaryEntities.GetOrAdd(topicName, x => (IQueue)SessionUtil.GetDestination(session, topicName, DestinationType.TemporaryQueue));
+            return (IQueue)_temporaryEntities.GetOrAdd(topicName, x => (IQueue)GetDestination(topicName, DestinationType.TemporaryQueue));
         }
 
-        public ITopic GetTemporaryTopic(ISession session, string topicName)
+        public ITopic GetTemporaryTopic(string topicName)
         {
-            return (ITopic)_temporaryEntities.GetOrAdd(topicName, x => (ITopic)SessionUtil.GetDestination(session, topicName, DestinationType.TemporaryTopic));
+            return (ITopic)_temporaryEntities.GetOrAdd(topicName, x => (ITopic)GetDestination(topicName, DestinationType.TemporaryTopic));
         }
 
         public bool TryGetTemporaryEntity(string name, out IDestination destination)
@@ -78,15 +72,44 @@ namespace MassTransit.ActiveMqTransport
             return _temporaryEntities.TryGetValue(name, out destination);
         }
 
-        public bool TryRemoveTemporaryEntity(ISession session, string name)
+        public bool TryRemoveTemporaryEntity(string name)
         {
             if (_temporaryEntities.TryGetValue(name, out var destination))
             {
-                session.DeleteDestination(destination);
+                //TODO: fix somehow
+                //session.DeleteDestination(destination);
                 return true;
             }
 
             return false;
+        }
+
+        public async Task<IDestination> GetDestinationAsync(string destinationName, DestinationType destinationType)
+        {
+            switch (destinationType)
+            {
+                case DestinationType.Queue:
+                case DestinationType.TemporaryQueue:
+                    return await _context.GetQueueAsync(destinationName);
+                case DestinationType.Topic:
+                case DestinationType.TemporaryTopic:
+                default:
+                    return await _context.GetTopicAsync(destinationName);
+            }
+        }
+
+        public IDestination GetDestination(string destinationName, DestinationType destinationType)
+        {
+            switch (destinationType)
+            {
+                case DestinationType.Queue:
+                case DestinationType.TemporaryQueue:
+                    return _context.GetQueue(destinationName);
+                case DestinationType.Topic:
+                case DestinationType.TemporaryTopic:
+                default:
+                    return _context.GetTopic(destinationName);
+            }
         }
 
         public async ValueTask DisposeAsync()
@@ -95,11 +118,11 @@ namespace MassTransit.ActiveMqTransport
 
             try
             {
-                await _connection.CloseAsync().ConfigureAwait(false);
+                await _context.CloseAsync().ConfigureAwait(false);
 
                 TransportLogMessages.DisconnectedHost(Description);
 
-                _connection.Dispose();
+                _context.Dispose();
 
                 await _executor.DisposeAsync().ConfigureAwait(false);
             }

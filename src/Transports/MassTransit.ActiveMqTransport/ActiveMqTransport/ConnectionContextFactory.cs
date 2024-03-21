@@ -33,9 +33,9 @@
 
             context.ContinueWith(task =>
             {
-                task.Result.Connection.ExceptionListener += HandleConnectionException;
+                task.Result.Context.ExceptionListener += HandleConnectionException;
 
-                contextHandle.Completed.ContinueWith(_ => task.Result.Connection.ExceptionListener -= HandleConnectionException);
+                contextHandle.Completed.ContinueWith(_ => task.Result.Context.ExceptionListener -= HandleConnectionException);
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             return contextHandle;
@@ -61,34 +61,34 @@
             if (supervisor.Stopping.IsCancellationRequested)
                 throw new ActiveMqConnectionException($"The connection is stopping and cannot be used: {description}");
 
-            IConnection connection = null;
+            INMSContext context = null;
             try
             {
                 TransportLogMessages.ConnectHost(description);
 
-                connection = _hostConfiguration.Settings.CreateConnection();
+                context = _hostConfiguration.Settings.CreateContext();
 
-                connection.Start();
+                await context.StartAsync();
 
-                LogContext.Debug?.Log("Connected: {Host} (client-id: {ClientId}, version: {Version})", description,
-                    connection.ClientId, connection.MetaData.NMSVersion);
+                LogContext.Debug?.Log("Connected: {Host} (client-id: {ClientId})", description,
+                    context.ClientId);
 
-                return new ActiveMqConnectionContext(connection, _hostConfiguration, supervisor.Stopped);
+                return new ActiveMqConnectionContext(context, _hostConfiguration, supervisor.Stopped);
             }
             catch (OperationCanceledException)
             {
-                connection?.Dispose();
+                context?.Dispose();
                 throw;
             }
             catch (NMSConnectionException ex)
             {
-                connection?.Dispose();
+                context?.Dispose();
                 LogContext.Warning?.Log(ex, "Connection Failed: {InputAddress}", _hostConfiguration.HostAddress);
                 throw new ActiveMqConnectionException("Connection exception: " + description, ex);
             }
             catch (Exception ex)
             {
-                connection?.Dispose();
+                context?.Dispose();
                 LogContext.Warning?.Log(ex, "Connection Failed: {InputAddress}", _hostConfiguration.HostAddress);
                 throw new ActiveMqConnectionException("Create Connection Faulted: " + description, ex);
             }

@@ -131,7 +131,7 @@ namespace MassTransit.ActiveMqTransport.Tests
         {
             var busControl = Bus.Factory.CreateUsingActiveMq(cfg =>
             {
-                cfg.Host("localhost", 61616, h =>
+                cfg.Host("tower", 61616, h =>
                 {
                     h.Username("admin");
                     h.Password("admin");
@@ -232,7 +232,7 @@ namespace MassTransit.ActiveMqTransport.Tests
             {
                 if (flavor == "artemis")
                 {
-                    cfg.Host("localhost", 61618, cfgHost =>
+                    cfg.Host("tower", 61618, cfgHost =>
                     {
                         cfgHost.Username("admin");
                         cfgHost.Password("admin");
@@ -272,7 +272,7 @@ namespace MassTransit.ActiveMqTransport.Tests
             {
                 if (flavor == "artemis")
                 {
-                    cfg.Host("localhost", 61618, cfgHost =>
+                    cfg.Host("tower", 61618, cfgHost =>
                     {
                         cfgHost.Username("admin");
                         cfgHost.Password("admin");
@@ -315,7 +315,7 @@ namespace MassTransit.ActiveMqTransport.Tests
             {
                 if (flavor == "artemis")
                 {
-                    cfg.Host("localhost", 61618, cfgHost =>
+                    cfg.Host("tower", 61618, cfgHost =>
                     {
                         cfgHost.Username("admin");
                         cfgHost.Password("admin");

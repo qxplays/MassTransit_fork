@@ -27,7 +27,7 @@
 
             InputQueueName = inputQueueName ?? "input_queue";
 
-            HostAddress = new Uri("activemq://localhost/");
+            HostAddress = new Uri("activemq://tower/");
         }
 
         public Uri HostAddress
@@ -43,7 +43,7 @@
         public string Username { get; set; }
         public string Password { get; set; }
         public int AdminPort { get; set; } = 8161;
-        public string AdminPath { get; set; } = "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost";
+        public string AdminPath { get; set; } = "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=tower";
         public bool CleanVirtualHost { get; set; } = true;
         public override string InputQueueName { get; }
 
@@ -106,19 +106,11 @@
 
             var settings = GetHostSettings();
 
-            using var connection = settings.CreateConnection();
-            using var session = connection.CreateSession();
+            using var connection = settings.CreateContext();
 
             (IList<string> queues, IList<string> topics) = await GetBrokerEntities();
 
-            foreach (var entity in queues)
-                session.DeleteDestination(SessionUtil.GetQueue(session, entity));
-
-            foreach (var entity in topics)
-                session.DeleteDestination(SessionUtil.GetTopic(session, entity));
-
-            session.Close();
-            connection.Close();
+            await connection.CloseAsync();
 
             CleanVirtualHost = false;
         }
@@ -128,9 +120,9 @@
             using var client = new HttpClient();
             var byteArray = Encoding.ASCII.GetBytes($"{Username}:{Password}");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-            client.DefaultRequestHeaders.Add("Origin", "localhost");
+            client.DefaultRequestHeaders.Add("Origin", "tower");
 
-            var requestUri = new UriBuilder("http", HostAddress.Host, AdminPort, "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost").Uri;
+            var requestUri = new UriBuilder("http", HostAddress.Host, AdminPort, "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=tower").Uri;
 
             var bytes = await client.GetByteArrayAsync(requestUri);
 
@@ -187,15 +179,7 @@
             {
                 var settings = GetHostSettings();
 
-                using var connection = settings.CreateConnection();
-                using var model = connection.CreateSession();
-
-                CleanUpQueue(model, "input_queue");
-
-                if (InputQueueName != "input_queue")
-                    CleanUpQueue(model, InputQueueName);
-
-                CleanupVirtualHost(model);
+                using var connection = settings.CreateContext();
             }
             catch (Exception exception)
             {
