@@ -9,6 +9,11 @@ namespace MassTransit.Transports
     {
         public static readonly LogMessage<string> ConnectHost = LogContext.Define<string>(LogLevel.Debug,
             "Connect: {Host}");
+        public static readonly LogMessage<string> ExceptionListenerHandled = LogContext.Define<string>(LogLevel.Debug,
+            "Exception on ExceptionListener: {Exception}");
+
+        public static readonly LogMessage<string> ConnectionErrorHandled = LogContext.Define<string>(LogLevel.Debug,
+            "Exception on ExceptionListener: {Exception}");
 
         public static readonly LogMessage<string> ConnectedHost = LogContext.Define<string>(LogLevel.Debug,
             "Connected: {Host}");

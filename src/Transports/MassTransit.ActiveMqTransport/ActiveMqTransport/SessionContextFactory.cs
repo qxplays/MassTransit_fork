@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using Agents;
     using Internals;
+    using Transports;
 
 
     public class SessionContextFactory :
@@ -45,6 +46,9 @@
             {
                 void HandleConnectionException(Exception exception)
                 {
+                    TransportLogMessages.ExceptionListenerHandled(exception.ToString());
+                    if (exception.ToString().Contains("not correlate acknowledgment"))
+                        return;
                     // ReSharper disable once MethodSupportsCancellation
                     asyncContext.Stop($"Connection Exception: {exception}");
                 }

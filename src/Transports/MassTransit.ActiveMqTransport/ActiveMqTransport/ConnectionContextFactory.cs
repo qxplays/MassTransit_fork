@@ -26,16 +26,29 @@
 
             IPipeContextAgent<ConnectionContext> contextHandle = supervisor.AddContext(context);
 
-            void HandleConnectionException(Exception exception)
+            void HandleException(Exception exception)
             {
-                contextHandle.Stop($"Connection Exception: {exception}");
+                TransportLogMessages.ExceptionListenerHandled(exception.ToString());
+                if (exception.ToString().Contains("not correlate acknowledgment"))
+                    return;
+                else
+                    contextHandle.Stop($"Connection Exception: {exception}");
+            }
+            void HandleInterruptException()
+            {
+                TransportLogMessages.ConnectionErrorHandled("connection interrupted");
+                contextHandle.Stop($"Connection Exception");
             }
 
             context.ContinueWith(task =>
             {
-                task.Result.Context.ExceptionListener += HandleConnectionException;
-
-                contextHandle.Completed.ContinueWith(_ => task.Result.Context.ExceptionListener -= HandleConnectionException);
+                task.Result.Context.ExceptionListener += HandleException;
+                task.Result.Context.ConnectionInterruptedListener += HandleInterruptException;
+                contextHandle.Completed.ContinueWith(_ =>
+                {
+                    task.Result.Context.ExceptionListener -= HandleException;
+                    task.Result.Context.ConnectionInterruptedListener -= HandleInterruptException;
+                });
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
             return contextHandle;

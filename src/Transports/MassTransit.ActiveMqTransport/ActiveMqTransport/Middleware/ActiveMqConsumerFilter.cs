@@ -89,6 +89,9 @@ namespace MassTransit.ActiveMqTransport.Middleware
 
             void HandleException(Exception exception)
             {
+                TransportLogMessages.ExceptionListenerHandled(exception.ToString());
+                if (exception.ToString().Contains("not correlate acknowledgment"))
+                    return;
                 supervisor.Stop(exception.Message);
             }
 

@@ -120,7 +120,7 @@ namespace MassTransit.ActiveMqTransport
             {
                 await _context.CloseAsync().ConfigureAwait(false);
 
-                TransportLogMessages.DisconnectedHost(Description);
+                TransportLogMessages.DisconnectedHost(Description + " \r\nTrace: " + Environment.StackTrace);
 
                 _context.Dispose();
 
