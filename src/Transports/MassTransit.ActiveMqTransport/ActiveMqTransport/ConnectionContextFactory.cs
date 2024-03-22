@@ -34,20 +34,13 @@
                 else
                     contextHandle.Stop($"Connection Exception: {exception}");
             }
-            void HandleInterruptException()
-            {
-                TransportLogMessages.ConnectionErrorHandled("connection interrupted");
-                contextHandle.Stop($"Connection Exception");
-            }
 
             context.ContinueWith(task =>
             {
                 task.Result.Context.ExceptionListener += HandleException;
-                task.Result.Context.ConnectionInterruptedListener += HandleInterruptException;
                 contextHandle.Completed.ContinueWith(_ =>
                 {
                     task.Result.Context.ExceptionListener -= HandleException;
-                    task.Result.Context.ConnectionInterruptedListener -= HandleInterruptException;
                 });
             }, TaskContinuationOptions.OnlyOnRanToCompletion);
 
