@@ -13,11 +13,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>MassTransit_Fork.ActiveMQ.NMSContext</PackageId>
+    <PackageId>Unofficial.MassTransit.ActiveMQ.NMSContext</PackageId>
     <Title>MassTransit.ActiveMQ.NMSContext</Title>
     <PackageTags>MassTransit;ActiveMQ;NMSContext</PackageTags>
     <Description>MassTransit ActiveMQ transport with INMSContext support; $(Description)</Description>
-    <Version>8.2.0-develop</Version>
+    <Version>8.2.0-develop-02</Version>
   </PropertyGroup>
 
   <ItemGroup>
