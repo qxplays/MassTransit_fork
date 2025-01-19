@@ -75,8 +75,9 @@
                 context = _hostConfiguration.Settings.CreateContext();
 
                 await context.StartAsync();
-
-                LogContext.Debug?.Log("Connected: {Host} (client-id: {ClientId})", description,
+                context.ConnectionInterruptedListener += () => LogContext.Info?.Log("Connection interrupted: {Host} (client-id: {ClientId})", description, context.ClientId);
+                context.ConnectionResumedListener += () => LogContext.Info?.Log("Connection resumed: {Host} (client-id: {ClientId})", description, context.ClientId);
+                LogContext.Info?.Log("Connected: {Host} (client-id: {ClientId})", description,
                     context.ClientId);
 
                 return new ActiveMqConnectionContext(context, _hostConfiguration, supervisor.Stopped);
