@@ -34,8 +34,8 @@ namespace MassTransit.ActiveMqTransport.Tests
 {
     ""messageId"": ""7a000000-9a3c-0005-1813-08d7e7027a0c"",
     ""conversationId"": ""7a000000-9a3c-0005-ed0b-08d7e7027a10"",
-    ""sourceAddress"": ""loopback://tower/ULPC15S12C_SampleApi_bus_xeyyyyr48oyymi95bdm6qyucnd?temporary=true"",
-    ""destinationAddress"": ""loopback://tower/input_queue"",
+    ""sourceAddress"": ""loopback://localhost/ULPC15S12C_SampleApi_bus_xeyyyyr48oyymi95bdm6qyucnd?temporary=true"",
+    ""destinationAddress"": ""loopback://localhost/input_queue"",
     ""messageType"": [
         ""urn:message:MassTransit.ActiveMqTransport.Tests.TestMessages:SubmitOrder""
     ],

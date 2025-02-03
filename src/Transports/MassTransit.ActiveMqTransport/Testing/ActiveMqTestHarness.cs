@@ -27,7 +27,7 @@
 
             InputQueueName = inputQueueName ?? "input_queue";
 
-            HostAddress = new Uri("activemq://tower/");
+            HostAddress = new Uri("activemq://localhost/");
         }
 
         public Uri HostAddress
@@ -43,7 +43,7 @@
         public string Username { get; set; }
         public string Password { get; set; }
         public int AdminPort { get; set; } = 8161;
-        public string AdminPath { get; set; } = "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=tower";
+        public string AdminPath { get; set; } = "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost";
         public bool CleanVirtualHost { get; set; } = true;
         public override string InputQueueName { get; }
 
@@ -120,9 +120,9 @@
             using var client = new HttpClient();
             var byteArray = Encoding.ASCII.GetBytes($"{Username}:{Password}");
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-            client.DefaultRequestHeaders.Add("Origin", "tower");
+            client.DefaultRequestHeaders.Add("Origin", "localhost");
 
-            var requestUri = new UriBuilder("http", HostAddress.Host, AdminPort, "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=tower").Uri;
+            var requestUri = new UriBuilder("http", HostAddress.Host, AdminPort, "api/jolokia/read/org.apache.activemq:type=Broker,brokerName=localhost").Uri;
 
             var bytes = await client.GetByteArrayAsync(requestUri);
 

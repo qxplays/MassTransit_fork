@@ -51,11 +51,11 @@
                 throw;
             }
         }
-
+//Сделал ретраи персистентными.
         static void CloneMessage(IMessage message, IMessage source, Action<IMessage, SendHeaders> preSend)
         {
             message.NMSReplyTo = source.NMSReplyTo;
-            message.NMSDeliveryMode = source.NMSDeliveryMode;
+            message.NMSDeliveryMode = MsgDeliveryMode.Persistent;
             message.NMSCorrelationID = source.NMSCorrelationID;
             message.NMSPriority = source.NMSPriority;
 

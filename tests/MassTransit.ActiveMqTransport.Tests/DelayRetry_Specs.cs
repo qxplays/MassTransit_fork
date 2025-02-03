@@ -230,7 +230,7 @@
 
                 if (flavor == "artemis")
                 {
-                    cfg.Host("tower", 61618, cfgHost =>
+                    cfg.Host("localhost", 61618, cfgHost =>
                     {
                         cfgHost.Username("admin");
                         cfgHost.Password("admin");

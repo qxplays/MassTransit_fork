@@ -94,6 +94,7 @@
         {
             var producer = await _messageProducerCache.GetMessageProducer(destination,
                 x => _executor.Run(() => ConnectionContext.Context.CreateProducerAsync(), cancellationToken)).ConfigureAwait(false);
+            producer.SetDeliveryMode(message.NMSDeliveryMode);
             await _executor.Run(() => producer.SendAsync(destination, message)
                 .OrCanceled(cancellationToken), cancellationToken).ConfigureAwait(false);
         }
