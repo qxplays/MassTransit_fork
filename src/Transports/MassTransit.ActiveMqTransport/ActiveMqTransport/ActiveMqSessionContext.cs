@@ -93,7 +93,12 @@
         public async Task SendAsync(IDestination destination, IMessage message, CancellationToken cancellationToken)
         {
             var producer = await _messageProducerCache.GetMessageProducer(destination,
-                x => _executor.Run(() => ConnectionContext.Context.CreateProducerAsync(), cancellationToken)).ConfigureAwait(false);
+                x => _executor.Run(async () =>
+                {
+                    var producer = await ConnectionContext.Context.CreateProducerAsync();
+                    producer.SetDeliveryMode(message.NMSDeliveryMode);
+                    return producer;
+                }, cancellationToken)).ConfigureAwait(false);
             producer.SetDeliveryMode(message.NMSDeliveryMode);
             await _executor.Run(() => producer.SendAsync(destination, message)
                 .OrCanceled(cancellationToken), cancellationToken).ConfigureAwait(false);
