@@ -96,7 +96,7 @@ namespace MassTransit.Context
             return new SendContextProxy<T>(this, message);
         }
 
-        public bool Durable { get; set; } = true;
+        public bool Durable { get; set; } = false;
 
         public TMessage Message { get; }
 
