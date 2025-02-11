@@ -116,7 +116,7 @@ namespace MassTransit.ActiveMqTransport
             if (delay > 0)
             {
                 //Durable for scheduled messages to avoid situations where scheduled messages are lost due to restarts of AMQ
-                transportMessage.NMSDeliveryMode = MsgDeliveryMode.Persistent;
+                //transportMessage.NMSDeliveryMode = MsgDeliveryMode.Persistent;
                 if (_hostConfiguration.IsArtemis)
                     transportMessage.Properties["_AMQ_SCHED_DELIVERY"] = (DateTimeOffset.UtcNow + context.Delay.Value).ToUnixTimeMilliseconds();
                 else
