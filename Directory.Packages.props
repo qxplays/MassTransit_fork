@@ -27,6 +27,7 @@
     <PackageVersion Include="Ionic.Zlib.Core" Version="1.0.0" />
     <PackageVersion Include="Marten" Version="5.11.0" Condition="'$(TargetFramework)' != 'net6.0' AND '$(TargetFramework)' != 'net7.0' AND '$(TargetFramework)' != 'net8.0'" />
     <PackageVersion Include="Marten" Version="6.4.1" Condition="'$(TargetFramework)' == 'net6.0' OR '$(TargetFramework)' == 'net7.0' OR '$(TargetFramework)' == 'net8.0'" />
+    <PackageVersion Include="MassTransit.Abstractions" Version="8.0.0" />
     <PackageVersion Include="MathNet.Numerics" Version="5.0.0" />
     <PackageVersion Include="MediatR" Version="12.2.0" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
@@ -116,5 +117,6 @@
     <PackageVersion Include="System.Threading.Channels" Version="8.0.0" Condition="'$(TargetFramework)' == 'net8.0'" />
     <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageVersion Include="System.ValueTuple" Version="4.5.0" />
+    <PackageVersion Include="Unofficial.MassTransit" Version="8.2.0-develop-01" />
   </ItemGroup>
 </Project>

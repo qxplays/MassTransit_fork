@@ -8,8 +8,8 @@ namespace MassTransit.Transports
 
     public static class ReceiveEndpointLoggingExtensions
     {
-        static readonly LogMessage<Uri, Guid?, string, string, TimeSpan> _logConsumed = LogContext.DefineMessage<Uri, Guid?, string, string, TimeSpan>(
-            LogLevel.Debug, "RECEIVE {InputAddress} {MessageId} {MessageType} {ConsumerType}({Duration})");
+        static readonly LogMessage<Uri, Guid?, Guid?, string, string, TimeSpan> _logConsumed = LogContext.DefineMessage<Uri, Guid?, Guid?, string, string, TimeSpan>(
+            LogLevel.Debug, "RECEIVE {InputAddress} {CorrelationId} {MessageId} {MessageType} {ConsumerType}({Duration})");
 
         static readonly LogMessage<Uri, Guid?, string, string, TimeSpan> _logConsumeFault = LogContext.Define<Uri, Guid?, string, string, TimeSpan>(
             LogLevel.Error, "R-FAULT {InputAddress} {MessageId} {MessageType} {ConsumerType}({Duration})");
@@ -26,8 +26,8 @@ namespace MassTransit.Transports
         static readonly LogMessage<Uri, string, object> _logReceiveDupe = LogContext.Define<Uri, string, object>(LogLevel.Warning,
             "R-DUPE {InputAddress} {MessageId} {TransportMessageId}");
 
-        static readonly LogMessage<Uri, Guid?, string> _logSent = LogContext.DefineMessage<Uri, Guid?, string>(LogLevel.Debug,
-            "SEND {DestinationAddress} {MessageId} {MessageType}");
+        static readonly LogMessage<Uri, Guid?, Guid?, string> _logSent = LogContext.DefineMessage<Uri, Guid?, Guid?, string>(LogLevel.Debug,
+            "SEND {DestinationAddress} {CorrelationId} {MessageId} {MessageType}");
 
         static readonly LogMessage<Uri, Guid?, string> _logSendFault = LogContext.Define<Uri, Guid?, string>(LogLevel.Error,
             "S-FAULT {DestinationAddress} {MessageId} {MessageType}");
@@ -83,7 +83,7 @@ namespace MassTransit.Transports
         public static void LogConsumed<T>(this ConsumeContext<T> context, TimeSpan duration, string consumerType)
             where T : class
         {
-            _logConsumed(context.ReceiveContext.InputAddress, context.MessageId, TypeCache<T>.ShortName, consumerType, duration);
+            _logConsumed(context.ReceiveContext.InputAddress, context.CorrelationId, context.MessageId, TypeCache<T>.ShortName, consumerType, duration);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -145,7 +145,7 @@ namespace MassTransit.Transports
         public static void LogSent<T>(this SendContext<T> context)
             where T : class
         {
-            _logSent(context.DestinationAddress, context.MessageId, TypeCache<T>.ShortName);
+            _logSent(context.DestinationAddress, context.CorrelationId, context.MessageId, TypeCache<T>.ShortName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

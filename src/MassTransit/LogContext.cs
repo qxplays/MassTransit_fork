@@ -207,6 +207,20 @@ namespace MassTransit
             return Log;
         }
 
+        public static LogMessage<T1, T2, T3, T4, T5, T6> DefineMessage<T1, T2, T3, T4, T5, T6>(LogLevel logLevel, string formatString)
+        {
+            Action<ILogger, T1, T2, T3, T4, T5, T6, Exception> logAction = LoggerMessage.Define<T1, T2, T3, T4, T5, T6>(logLevel, default, formatString);
+
+            void Log(T1 arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, Exception exception)
+            {
+                var logContext = Current;
+                if (logContext != null)
+                    logAction(logContext.Messages.Logger, arg1, arg2, arg3, arg4, arg5, arg6, exception);
+            }
+
+            return Log;
+        }
+
         static ILogContext CreateDefaultLogContext()
         {
             var loggerFactory = NullLoggerFactory.Instance;

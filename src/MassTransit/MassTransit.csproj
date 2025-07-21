@@ -10,9 +10,16 @@
   </PropertyGroup>
 
  <PropertyGroup>
-    <PackageTags>MassTransit</PackageTags>
-    <Description>$(Description)</Description>
+   <PackageId>Unofficial.MassTransit</PackageId>
+   <Title>Unofficial.MassTransit</Title>
+   <PackageTags>MassTransit;Unofficial</PackageTags>
+   <Description>MassTransit unofficial package with some optimizations; $(Description)</Description>
+   <Version>8.2.0-rc-1</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MassTransit.Abstractions\MassTransit.Abstractions.csproj" />
+  </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472'">
     <Reference Include="System.Transactions" />
@@ -39,7 +46,4 @@
     <PackageReference Include="System.Threading.Channels" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\MassTransit.Abstractions\MassTransit.Abstractions.csproj" />
-  </ItemGroup>
 </Project>
