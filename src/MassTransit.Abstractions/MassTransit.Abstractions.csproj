@@ -15,10 +15,12 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageTags>MassTransit</PackageTags>
+    <PackageTags>MassTransit;Unofficial</PackageTags>
     <Description>$(Description)</Description>
+    <PackageId>Unofficial.MassTransit.Abstractions</PackageId>
+    <Title>Unofficial.MassTransit.Abstractions</Title>
+    <Version>8.2.0-rc-2</Version>
   </PropertyGroup>
-
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <PackageReference Include="System.ValueTuple" />
   </ItemGroup>

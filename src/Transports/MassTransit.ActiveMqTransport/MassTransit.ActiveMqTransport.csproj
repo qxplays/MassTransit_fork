@@ -17,7 +17,7 @@
     <Title>MassTransit.ActiveMQ.NMSContext</Title>
     <PackageTags>MassTransit;ActiveMQ;NMSContext</PackageTags>
     <Description>MassTransit ActiveMQ transport with INMSContext support; $(Description)</Description>
-    <Version>8.2.0-rc-1</Version>
+    <Version>8.2.0-rc-3</Version>
   </PropertyGroup>
 
   <ItemGroup>

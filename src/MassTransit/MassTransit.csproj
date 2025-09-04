@@ -14,7 +14,7 @@
    <Title>Unofficial.MassTransit</Title>
    <PackageTags>MassTransit;Unofficial</PackageTags>
    <Description>MassTransit unofficial package with some optimizations; $(Description)</Description>
-   <Version>8.2.0-rc-1</Version>
+   <Version>8.2.0-rc-3</Version>
   </PropertyGroup>
 
   <ItemGroup>
