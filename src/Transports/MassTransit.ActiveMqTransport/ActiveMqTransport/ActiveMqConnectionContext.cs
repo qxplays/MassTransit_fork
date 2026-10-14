@@ -34,6 +34,8 @@ namespace MassTransit.ActiveMqTransport
             : base(cancellationToken)
         {
             _context = context;
+            if (hostConfiguration.Settings is ConfigurationHostSettings settings && settings.PublisherConnectionCount > 1)
+                this.GetOrAddPayload(() => new NativeSendLanePool(hostConfiguration.Settings.CreateContext, settings.PublisherConnectionCount));
 
             Description = hostConfiguration.Settings.ToDescription();
             HostAddress = hostConfiguration.HostAddress;
@@ -118,6 +120,14 @@ namespace MassTransit.ActiveMqTransport
 
             try
             {
+                if (this.TryGetPayload<NativeSendLanePool>(out var publishers))
+                {
+                    try { await publishers.DisposeAsync().ConfigureAwait(false); }
+                    catch (Exception exception)
+                    {
+                        LogContext.Warning?.Log(exception, "Close publisher connections faulted: {Host}", Description);
+                    }
+                }
                 await _context.CloseAsync().ConfigureAwait(false);
 
                 TransportLogMessages.DisconnectedHost(Description + " \r\nTrace: " + Environment.StackTrace);

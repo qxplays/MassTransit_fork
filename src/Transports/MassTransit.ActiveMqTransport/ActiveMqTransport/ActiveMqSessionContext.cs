@@ -92,6 +92,13 @@
 
         public async Task SendAsync(IDestination destination, IMessage message, CancellationToken cancellationToken)
         {
+            if (!(destination is ITemporaryQueue) && !(destination is ITemporaryTopic)
+                && ConnectionContext.TryGetPayload<NativeSendLanePool>(out var publishers))
+            {
+                await publishers.Send(destination, message, cancellationToken).ConfigureAwait(false);
+                return;
+            }
+
             var producer = await _messageProducerCache.GetMessageProducer(destination,
                 x => _executor.Run(async () =>
                 {
