@@ -38,6 +38,8 @@ namespace MassTransit.ActiveMqTransport.Configuration
             _brokerAddress = new Lazy<Uri>(FormatBrokerAddress);
         }
 
+        public int PublisherConnectionCount { get; set; } = 1;
+
         public string[] FailoverHosts { get; set; }
         public Dictionary<string, string> TransportOptions { get; }
 

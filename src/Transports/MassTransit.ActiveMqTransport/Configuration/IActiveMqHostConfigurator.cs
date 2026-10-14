@@ -35,6 +35,13 @@
         /// </summary>
         void EnableOptimizeAcknowledge();
 
+        /// <summary>
+        /// Opt into independent physical publisher connections (1..8). Default 1
+        /// retains the existing connection. Consumer ACKs and temporary destinations
+        /// remain on their original connection. Experimental; validate recovery first.
+        /// </summary>
+        void PublisherConnectionCount(int count);
+
         void SetPrefetchPolicy(int limit);
 
         void SetQueuePrefetchPolicy(int limit);

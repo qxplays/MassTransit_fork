@@ -54,10 +54,16 @@
                 }
 
                 connectionContext.Context.ExceptionListener += HandleConnectionException;
+                var hasPublishers = connectionContext.TryGetPayload<NativeSendLanePool>(out var publishers);
+                if (hasPublishers) publishers.ExceptionListener += HandleConnectionException;
 
                 #pragma warning disable 4014
                 // ReSharper disable once MethodSupportsCancellation
-                asyncContext.Completed.ContinueWith(_ => connectionContext.Context.ExceptionListener -= HandleConnectionException,
+                asyncContext.Completed.ContinueWith(_ =>
+                {
+                    connectionContext.Context.ExceptionListener -= HandleConnectionException;
+                    if (hasPublishers) publishers.ExceptionListener -= HandleConnectionException;
+                },
                     TaskContinuationOptions.ExecuteSynchronously);
                 #pragma warning restore 4014
 

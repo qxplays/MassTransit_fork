@@ -47,6 +47,13 @@ namespace MassTransit.ActiveMqTransport.Configuration
                 _settings.TransportOptions[option.Key] = option.Value;
         }
 
+        public void PublisherConnectionCount(int count)
+        {
+            if (count < 1 || count > 8)
+                throw new ArgumentOutOfRangeException(nameof(count));
+            _settings.PublisherConnectionCount = count;
+        }
+
         public void EnableAsyncSend()
         {
             _settings.TransportOptions["nms.AsyncSend"] = "true";

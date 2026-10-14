@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFrameworks>net8.0</TargetFrameworks><ImplicitUsings>enable</ImplicitUsings><LangVersion>12</LangVersion><IsTestProject>false</IsTestProject></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Transports/MassTransit.ActiveMqTransport/MassTransit.ActiveMqTransport.csproj" />
+    <Compile Include="../../src/Transports/MassTransit.ActiveMqTransport/ActiveMqTransport/NativeSendLanePool.cs" Link="NativeSendLanePool.cs" />
+  </ItemGroup>
+</Project>
