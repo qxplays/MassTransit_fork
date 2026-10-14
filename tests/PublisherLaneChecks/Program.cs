@@ -105,4 +105,3 @@ public class NmsTestProxy:DispatchProxy{
  public Func<MethodInfo,object[],object> Handler{get;set;}
  protected override object Invoke(MethodInfo method,object[] args)=>Handler(method,args);
 }
-
